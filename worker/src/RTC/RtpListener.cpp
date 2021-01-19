@@ -17,10 +17,14 @@ namespace RTC
 		jsonObject["ssrcTable"] = json::object();
 		jsonObject["midTable"]  = json::object();
 		jsonObject["ridTable"]  = json::object();
+        jsonObject["payloadTable"] = json::object();
+
 
 		auto jsonSsrcTableIt = jsonObject.find("ssrcTable");
 		auto jsonMidTableIt  = jsonObject.find("midTable");
 		auto jsonRidTableIt  = jsonObject.find("ridTable");
+        auto jsonPayloadTableIt  = jsonObject.find("payloadTable");
+
 
 		// Add ssrcTable.
 		for (auto& kv : this->ssrcTable)
@@ -48,6 +52,15 @@ namespace RTC
 
 			(*jsonRidTableIt)[rid] = producer->id;
 		}
+
+        // Add payloadTable.
+        for (auto& kv : this->payloadTable)
+        {
+            auto& payload      = kv.first;
+            auto* producer     = kv.second;
+
+            (*jsonPayloadTableIt)[payload] = producer->id;
+        }
 	}
 
 	void RtpListener::AddProducer(RTC::Producer* producer)
@@ -133,6 +146,31 @@ namespace RTC
 				MS_THROW_ERROR("RID already exists in RTP listener and no MID is given [rid:%s]", rid.c_str());
 			}
 		}
+
+        // Add entries into payloadTable.
+        for (auto& encoding : rtpParameters.encodings)
+        {
+			uint32_t payload;
+
+			// Check encoding.ssrc.
+			payload = encoding.codecPayloadType;
+            MS_DUMP("testing payload in RTP listener [payload:%" PRIu32 "]", payload);
+
+			//if (payload != 0u)
+			//{
+
+            if (this->payloadTable.find(payload) == this->payloadTable.end())
+            {
+                this->payloadTable[payload] = producer;
+            }
+            else
+            {
+                RemoveProducer(producer);
+
+                MS_THROW_ERROR("payload already exists in RTP listener [payload:%" PRIu32 "]", payload);
+            }
+			//}
+        }
 	}
 
 	void RtpListener::RemoveProducer(RTC::Producer* producer)
@@ -164,6 +202,14 @@ namespace RTC
 			else
 				++it;
 		}
+
+        for (auto it = this->payloadTable.begin(); it != this->payloadTable.end();)
+        {
+            if (it->second == producer)
+                it = this->payloadTable.erase(it);
+            else
+                ++it;
+        }
 	}
 
 	RTC::Producer* RtpListener::GetProducer(const RTC::RtpPacket* packet)
@@ -223,6 +269,18 @@ namespace RTC
 				}
 			}
 		}
+
+        // Lookup into the Payload table.
+        {
+            auto it = this->payloadTable.find(packet->GetPayloadType());
+
+            if (it != this->payloadTable.end())
+            {
+                auto* producer = it->second;
+
+                return producer;
+            }
+        }
 
 		return nullptr;
 	}

@@ -28,6 +28,8 @@ namespace RTC
 		std::unordered_map<std::string, RTC::Producer*> midTable;
 		//  Table of RID / Producer pairs.
 		std::unordered_map<std::string, RTC::Producer*> ridTable;
+        //  Table of Payload / Producer pairs.
+        std::unordered_map<uint8_t, RTC::Producer*> payloadTable;
 	};
 } // namespace RTC
 
