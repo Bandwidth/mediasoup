@@ -151,6 +151,7 @@ namespace RTC
         for (auto& encoding : rtpParameters.encodings)
         {
             uint32_t payload;
+            uint32_t ssrc;
 
 			// Check encoding.ssrc.
 			ssrc = encoding.ssrc;
