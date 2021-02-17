@@ -147,29 +147,29 @@ namespace RTC
 			}
 		}
 
-        // Add entries into payloadTable.
+        // Add entries into payloadTable if no ssrc was found to map packets.
         for (auto& encoding : rtpParameters.encodings)
         {
-			uint32_t payload;
+            uint32_t payload;
 
 			// Check encoding.ssrc.
-			payload = encoding.codecPayloadType;
-            MS_DUMP("testing payload in RTP listener [payload:%" PRIu32 "]", payload);
+			ssrc = encoding.ssrc;
 
-			//if (payload != 0u)
-			//{
+            // Check encoding.ssrc.
+            payload = encoding.codecPayloadType;
 
-            if (this->payloadTable.find(payload) == this->payloadTable.end())
-            {
-                this->payloadTable[payload] = producer;
+            if (ssrc == 0u) {
+                if (this->payloadTable.find(payload) == this->payloadTable.end())
+                {
+                    this->payloadTable[payload] = producer;
+                }
+                else
+                {
+                    RemoveProducer(producer);
+
+                    MS_THROW_ERROR("payload already exists in RTP listener [payload:%" PRIu32 "]", payload);
+                }
             }
-            else
-            {
-                RemoveProducer(producer);
-
-                MS_THROW_ERROR("payload already exists in RTP listener [payload:%" PRIu32 "]", payload);
-            }
-			//}
         }
 	}
 
