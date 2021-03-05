@@ -152,6 +152,7 @@ namespace RTC
         {
             uint32_t payload;
             uint32_t ssrc;
+            auto& rid = encoding.rid;
 
 			// Check encoding.ssrc.
 			ssrc = encoding.ssrc;
@@ -159,7 +160,7 @@ namespace RTC
             // Check encoding.ssrc.
             payload = encoding.codecPayloadType;
 
-            if (ssrc == 0u) {
+            if (ssrc == 0u && rid.empty()) {
                 if (this->payloadTable.find(payload) == this->payloadTable.end())
                 {
                     this->payloadTable[payload] = producer;
