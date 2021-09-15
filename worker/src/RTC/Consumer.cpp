@@ -131,6 +131,8 @@ namespace RTC
 		{
 			if (codec.mimeType.IsMediaCodec())
 				this->supportedCodecPayloadTypes.insert(codec.payloadType);
+			else if (codec.mimeType.IsComplementaryCodec())
+				this->supportedCodecPayloadTypes.insert(codec.payloadType);
 		}
 
 		// Fill media SSRCs vector.
