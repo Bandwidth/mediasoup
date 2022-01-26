@@ -1001,11 +1001,13 @@ namespace RTC
 				// Ensure there is no other RTP stream already.
 				if (!this->mapSsrcRtpStream.empty())
 				{
-					MS_WARN_TAG(
-					  rtp,
-					  "ignoring packet with unknown ssrc not matching the already existing stream (single RtpStream lookup)");
-
-					return nullptr;
+//					MS_WARN_TAG(
+//					  rtp,
+//					  "ignoring packet with unknown ssrc not matching the already existing stream (single RtpStream lookup)");
+            MS_WARN_TAG(
+              rtp,
+              "recreating RtpStream with unknown ssrc not matching the already existing stream (single RtpStream lookup)");
+					//return nullptr;
 				}
 
 				auto* rtpStream = CreateRtpStream(packet, *mediaCodec, 0);
@@ -1058,9 +1060,9 @@ namespace RTC
 		MS_ASSERT(
 		  this->mapSsrcRtpStream.find(ssrc) == this->mapSsrcRtpStream.end(),
 		  "RtpStream with given SSRC already exists");
-		MS_ASSERT(
-		  !this->rtpStreamByEncodingIdx[encodingIdx],
-		  "RtpStream for given encoding index already exists");
+//		MS_ASSERT(
+//		  !this->rtpStreamByEncodingIdx[encodingIdx],
+//		  "RtpStream for given encoding index already exists");
 
 		auto& encoding        = this->rtpParameters.encodings[encodingIdx];
 		auto& encodingMapping = this->rtpMapping.encodings[encodingIdx];
